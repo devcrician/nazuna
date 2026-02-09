@@ -23785,11 +23785,8 @@ ${prefix}togglecmdvip premium_ia off`);
             statusCor = '🟥';
           }
           
-          const bannerUrl = `https://nazu-banner.vercel.app/api/banner?theme=miku&num=${speedConverted.toFixed(3)}`;
-          
           await nazu.sendMessage(from, {
-            image: { url: bannerUrl },
-            caption: `╭⊱ ⚡ *STATUS DA CONEXÃO* ⚡ ⊱╮
+            text: `╭⊱ ⚡ *STATUS DA CONEXÃO* ⚡ ⊱╮
 │
 │ 📡 *Informações de Latência*
 │ ├─ ${statusEmoji} Velocidade: *${speedConverted.toFixed(3)}s*
