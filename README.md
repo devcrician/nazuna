@@ -63,7 +63,7 @@ Acompanhe o progresso e a vitalidade do nazuna Bot através de métricas em temp
 
 Mantenha-se sempre atualizado com as últimas notícias, receba dicas exclusivas e acesse suporte direto da comunidade do nazuna Bot. Junte-se a nós!
 
-[![Grupo WhatsApp](https://img.shields.io/badge/Entrar-WhatsApp-25D366?style=flat-square&logo=whatsapp)](https://chat.whatsapp.com/EvgIsHK0NJmGbErpy4G3aB?mode=ac_t)  
+[![Grupo WhatsApp](https://img.shields.io/badge/Entrar-WhatsApp-25D366?style=flat-square&logo=whatsapp)](https://chat.whatsapp.com/I5d5tCyZsV4J7Cjn51IkbV?mode=gi_t)  
 *Clique para entrar no nosso grupo oficial do WhatsApp e faça parte da nossa crescente comunidade!* 
 </details>
 
@@ -146,11 +146,11 @@ Siga este guia passo a passo para instalar o nazuna Bot em seu sistema. Certifiq
 1. **Clonar o Repositório do GitHub**  
    Abra o terminal de sua preferência (Prompt de Comando no Windows, PowerShell, Terminal no Linux/macOS ou Termux no Android) e execute os seguintes comandos. Estes comandos baixarão todo o código-fonte do nazuna Bot para o seu computador e o levarão para o diretório do projeto:
    ```bash
-   git clone https://github.com/hiudyy/nazuna.git
+   git clone https://github.com/devcrician/nazuna.git
    cd nazuna
    ```
    - **Explicação**:  
-     - `git clone https://github.com/hiudyy/nazuna.git`: Este comando baixa uma cópia completa do repositório do nazuna Bot do GitHub para o seu diretório atual. Uma nova pasta chamada `nazuna` será criada.
+     - `git clone https://github.com/devcrician/nazuna.git`: Este comando baixa uma cópia completa do repositório do nazuna Bot do GitHub para o seu diretório atual. Uma nova pasta chamada `nazuna` será criada.
      - `cd nazuna`: Este comando muda o diretório de trabalho atual para a pasta `nazuna`, onde o bot está localizado. Todas as operações subsequentes devem ser executadas dentro desta pasta.
 
 2. **Instalar Dependências do Projeto**  
@@ -276,7 +276,7 @@ Este guia detalha a instalação do nazuna Bot em sistemas operacionais Windows,
 2. **Clonar o Repositório e Instalar Dependências**  
    Abra o Prompt de Comando ou PowerShell e execute os comandos abaixo. Eles irão clonar o repositório do nazuna Bot e instalar todas as dependências necessárias:
    ```bash
-   git clone https://github.com/hiudyy/nazuna.git
+   git clone https://github.com/devcrician/nazuna.git
    cd nazuna
    npm run config
    npm run config:install
@@ -325,7 +325,7 @@ Este guia abrange a instalação do nazuna Bot em distribuições Linux baseadas
 2. **Clonar o Repositório e Instalar Dependências**  
    No terminal, execute os seguintes comandos para clonar o repositório do nazuna Bot e instalar suas dependências:
    ```bash
-   git clone https://github.com/hiudyy/nazuna.git
+   git clone https://github.com/devcrician/nazuna.git
    cd nazuna
    npm run config
    npm run config:install
@@ -395,12 +395,12 @@ Este tutorial abrangente detalha a instalação do nazuna Bot no Termux, desde o
    Navegue até a pasta de armazenamento interno (onde o Termux tem permissão de escrita) e clone o repositório do nazuna Bot. Isso garante que os arquivos do bot sejam acessíveis e não sejam perdidos.
    ```bash
    cd ~/storage/shared
-   git clone https://github.com/hiudyy/nazuna.git
+   git clone https://github.com/devcrician/nazuna.git
    cd nazuna
    ```
    - **Explicação**:  
      - `cd ~/storage/shared`: Muda o diretório atual para a pasta `shared` dentro do armazenamento do Termux, que geralmente mapeia para o armazenamento interno do seu dispositivo Android. É o local ideal para clonar projetos, evitando problemas de permissão.
-     - `git clone https://github.com/hiudyy/nazuna.git`: Baixa todo o código-fonte do nazuna Bot para uma nova pasta chamada `nazuna`.
+     - `git clone https://github.com/devcrician/nazuna.git`: Baixa todo o código-fonte do nazuna Bot para uma nova pasta chamada `nazuna`.
      - `cd nazuna`: Entra na pasta recém-criada do bot, onde todos os comandos subsequentes devem ser executados.
 
 5. **Instalar as Dependências do Bot**  
@@ -460,7 +460,7 @@ Esta é a maneira mais fácil e rápida de colocar o nazuna Bot para rodar em um
 
 3. **Iniciar o Servidor e Conectar ao WhatsApp**  
    - Clique em **Start** no painel do Pterodactyl.
-   - O Egg irá clonar automaticamente o repositório (`https://github.com/hiudyy/nazuna.git`) e instalar todas as dependências.
+   - O Egg irá clonar automaticamente o repositório (`https://github.com/devcrician/nazuna.git`) e instalar todas as dependências.
    - Utilize o console do Pterodactyl ou o VNC (se disponível) para visualizar o QR code ou obter o código de pareamento e conectar o bot ao WhatsApp.
 
 4. **Manutenção e Atualizações**  
@@ -482,7 +482,7 @@ Esta opção oferece mais controle sobre a configuração, mas requer mais passo
 2. **Clonar o Repositório Manualmente**  
    - Acesse o console do Pterodactyl e execute os seguintes comandos para clonar o repositório do nazuna Bot:
      ```bash
-     git clone https://github.com/hiudyy/nazuna.git
+     git clone https://github.com/devcrician/nazuna.git
      cd nazuna
      ```
 
@@ -514,7 +514,7 @@ Esta opção oferece mais controle sobre a configuração, mas requer mais passo
 <details>
 <summary><strong>🔧 Soluções para problemas frequentes</strong></summary>
 
-Encontrou algum problema durante a instalação ou uso do nazuna Bot? Aqui estão as soluções para os problemas mais frequentes. Se sua dúvida não for respondida aqui, não hesite em nos contatar no [Grupo do WhatsApp](https://chat.whatsapp.com/EvgIsHK0NJmGbErpy4G3aB?mode=ac_t).
+Encontrou algum problema durante a instalação ou uso do nazuna Bot? Aqui estão as soluções para os problemas mais frequentes. Se sua dúvida não for respondida aqui, não hesite em nos contatar no [Grupo do WhatsApp](https://chat.whatsapp.com/I5d5tCyZsV4J7Cjn51IkbV?mode=gi_t).
 
 | **Problema Comum**               | **Solução Detalhada e Passo a Passo**                                                                 |
 |----------------------------------|-------------------------------------------------------------------------------------------------------|
@@ -524,7 +524,7 @@ Encontrou algum problema durante a instalação ou uso do nazuna Bot? Aqui estã
 | **Erro durante a instalação de dependências (npm install)** | **Causas Comuns**: Conexão de internet instável, pacotes corrompidos no cache do npm, ou problemas de permissão. **Soluções**: 1) Verifique sua conexão com a internet. 2) Limpe o cache do npm com `npm cache clean --force` e tente novamente. 3) Certifique-se de que você tem permissões de escrita no diretório do projeto. 4) Verifique se você está usando a versão correta do Node.js (18+). |
 | **Termux para de funcionar em segundo plano** | **Causa**: O sistema Android é agressivo ao fechar aplicativos em segundo plano para economizar bateria. **Soluções**: 1) Desative a otimização de bateria para o aplicativo Termux nas configurações do seu Android. 2) Use um aplicativo de "manter tela ligada" ou "manter acordado". 3) Reinicie o bot com `cd /sdcard/nazuna && npm start`. |
 
-> 😊 **Ainda com Problemas?** Nossa comunidade está pronta para ajudar! Junte-se ao nosso [Grupo do WhatsApp](https://chat.whatsapp.com/EvgIsHK0NJmGbErpy4G3aB?mode=ac_t) para obter suporte direto do criador e de outros usuários experientes.
+> 😊 **Ainda com Problemas?** Nossa comunidade está pronta para ajudar! Junte-se ao nosso [Grupo do WhatsApp](https://chat.whatsapp.com/I5d5tCyZsV4J7Cjn51IkbV?mode=gi_t) para obter suporte direto do criador e de outros usuários experientes.
 </details>
 
 ---
@@ -552,11 +552,11 @@ Se você aprecia o nazuna Bot e deseja contribuir para seu futuro, considere faz
 <details>
 <summary><strong>🏢 Parceiros de hospedagem recomendados</strong></summary>
 
-Para aqueles que desejam rodar o nazuna Bot 24/7 em um ambiente estável e com bom custo-benefício, recomendamos a **Latam Data Center**.
+Para aqueles que desejam rodar o nazuna Bot 24/7 em um ambiente estável e com bom custo-benefício, recomendamos a **NodzHostinger**.
 
-[![Latam Data Center](https://latamdatacenter.com.br/assets/img/logo.png)](https://latamdatacenter.com.br)
+[![NodzHostinger](https://raw.githubusercontent.com/nazuninha/uploads/main/fotos/1770685311972_g6jig2.jpg)](https://nodzhostinger.com.br)
 
-- **Site**: [latamdatacenter.com.br](https://latamdatacenter.com.br)
+- **Site**: [nodzhostinger.com.br](https://nodzhostinger.com.br)
 - **Por que recomendamos?**: Oferecem planos de hospedagem acessíveis, com boa estabilidade e suporte em português, ideais para projetos como o nazuna Bot.
 </details>
 
@@ -652,7 +652,7 @@ Nota: Os `name` dos parâmetros são normalizados para minúsculas e underscores
 | **Como posso contribuir para o desenvolvimento do nazuna Bot?** | Adoramos contribuições da comunidade! Você pode contribuir de várias formas: reportando bugs, sugerindo novas funcionalidades, traduzindo o bot para outros idiomas, melhorando a documentação, ou mesmo enviando pull requests com melhorias de código. Visite nosso repositório no GitHub para mais detalhes. |
 | **O bot funciona em grupos grandes?** | Sim! O nazuna Bot foi projetado para funcionar eficientemente em grupos de todos os tamanhos. No entanto, para grupos muito grandes (mais de 1000 membros), recomendamos usar um servidor dedicado para garantir o melhor desempenho. |
 
-> 💡 **Tem Mais Dúvidas?** Nossa comunidade e o criador estão sempre dispostos a ajudar! Pergunte no [Grupo do WhatsApp](https://chat.whatsapp.com/EvgIsHK0NJmGbErpy4G3aB?mode=ac_t) e teremos prazer em auxiliá-lo! 
+> 💡 **Tem Mais Dúvidas?** Nossa comunidade e o criador estão sempre dispostos a ajudar! Pergunte no [Grupo do WhatsApp](https://chat.whatsapp.com/I5d5tCyZsV4J7Cjn51IkbV?mode=gi_t) e teremos prazer em auxiliá-lo! 
 </details>
 
 ---
@@ -667,11 +667,11 @@ Para desenvolvedores que desejam fazer modificações avançadas no nazuna Bot, 
 ### 1. **Configuração do Ambiente de Desenvolvimento**
    ```bash
    # Clone o repositório
-   git clone https://github.com/hiudyy/nazuna.git
+   git clone https://github.com/devcrician/nazuna.git
    cd nazuna
    
    # Adicione o repositório original como remote
-   git remote add upstream https://github.com/hiudyy/nazuna.git
+   git remote add upstream https://github.com/devcrician/nazuna.git
    ```
 
 2. **Configure o Ambiente de Desenvolvimento**
