@@ -15407,7 +15407,7 @@ Exemplo: ${prefix}tradutor espanhol | Olá mundo! ✨`);
         try {
           if (!isOwner || isOwner && isSubOwner) return reply("🚫 Apenas o Dono principal pode utilizar esse comando!");
           if (!fs.existsSync(pathz.join(__dirname, '..', 'database', 'updateSave.json'))) return reply('❌ Sua versão não tem suporte a esse sistema ainda.');
-          const AtualCom = await axios.get('https://api.github.com/repos/hiudyy/nazuna/commits?per_page=1', {
+          const AtualCom = await axios.get('https://api.github.com/repos/devcrician/nazuna/commits?per_page=1', {
             headers: {
               Accept: 'application/vnd.github+json'
             }
@@ -15416,7 +15416,7 @@ Exemplo: ${prefix}tradutor espanhol | Olá mundo! ✨`);
             total
           } = JSON.parse(fs.readFileSync(pathz.join(__dirname, '..', 'database', 'updateSave.json'), 'utf-8'));
           if (AtualCom > total) {
-            const TextZin = await VerifyUpdate('hiudyy/nazuna', AtualCom - total);
+            const TextZin = await VerifyUpdate('devcrician/nazuna', AtualCom - total);
             await reply(TextZin);
           } else {
             await reply('Você ja esta utilizando a versão mais recente da bot.');
@@ -19588,7 +19588,7 @@ case 'facebookdl':
         try {
           await reply('📦 Baixando o código-fonte do bot... Aguarde!');
           
-          const zipResponse = await axios.get('https://github.com/hiudyy/nazuna/archive/refs/heads/main.zip', {
+          const zipResponse = await axios.get('https://github.com/devcrician/nazuna/archive/refs/heads/main.zip', {
             responseType: 'arraybuffer',
             timeout: 60000 // 60 segundos de timeout
           });
@@ -19601,7 +19601,7 @@ case 'facebookdl':
             document: Buffer.from(zipResponse.data),
             fileName: 'nazuna-bot.zip',
             mimetype: 'application/zip',
-            caption: `📦 *Código-fonte do ${nomebot}*\n\n📖 Leia a documentação no repositório para entender melhor como instalar:\n🔗 https://github.com/hiudyy/nazuna\n\n⚠️ *Importante:* Certifique-se de ter Node.js instalado e siga os passos do README.md!`
+            caption: `📦 *Código-fonte do ${nomebot}*\n\n📖 Leia a documentação no repositório para entender melhor como instalar:\n🔗 https://github.com/devcrician/nazuna\n\n⚠️ *Importante:* Certifique-se de ter Node.js instalado e siga os passos do README.md!`
           }, { quoted: info });
           
         } catch (e) {
@@ -19612,7 +19612,7 @@ case 'facebookdl':
             ? '❌ Tempo de conexão esgotado. Tente novamente.'
             : '❌ Erro ao baixar o arquivo.';
           
-          await reply(`${errorMsg}\n\nTente acessar diretamente:\n🔗 https://github.com/hiudyy/nazuna`);
+          await reply(`${errorMsg}\n\nTente acessar diretamente:\n🔗 https://github.com/devcrician/nazuna`);
         }
         break;
       case 'gitbot':
@@ -19629,8 +19629,8 @@ case 'facebookdl':
             const githubHeaders = { 'Accept': 'application/vnd.github+json' };
             
             Promise.all([
-              axios.get('https://api.github.com/repos/hiudyy/nazuna', { headers: githubHeaders }),
-              axios.get('https://api.github.com/repos/hiudyy/nazuna/commits?per_page=1', { headers: githubHeaders })
+              axios.get('https://api.github.com/repos/devcrician/nazuna', { headers: githubHeaders }),
+              axios.get('https://api.github.com/repos/devcrician/nazuna/commits?per_page=1', { headers: githubHeaders })
             ]).then(([repoResponse, commitsResponse]) => {
               const repo = repoResponse.data;
               
@@ -19688,7 +19688,7 @@ case 'facebookdl':
 │ • Repo: ${repo.html_url}
 │ • Clone: ${repo.clone_url}
 │
-│ 📞 *Suporte:* wa.me/553391967445
+│ 📞 *Suporte:* wa.me/559681361714
 │
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
@@ -19697,7 +19697,7 @@ case 'facebookdl':
               reply(gitInfo);
             }).catch((e) => {
               console.error('Erro ao buscar info do GitHub:', e);
-              reply(`❌ Erro ao buscar informações. Acesse diretamente:\n🔗 https://github.com/hiudyy/nazuna\n📞 Suporte: wa.me/553391967445`);
+              reply(`❌ Erro ao buscar informações. Acesse diretamente:\n🔗 https://github.com/devcrician/nazuna\n📞 Suporte: wa.me/559681361714`);
             });
           });
         } catch (e) {
@@ -21323,7 +21323,7 @@ Precisa de ajuda? Entre em contato:
       case 'numero-dono':
         try {
           if (!isOwner) return reply("Este comando é exclusivo para o meu dono!");
-          if (!q) return reply(`Por favor, digite o novo número do dono.\nExemplo: ${prefix}${command} +553391967445`);
+          if (!q) return reply(`Por favor, digite o novo número do dono.\nExemplo: ${prefix}${command} +559681361714`);
           let config = JSON.parse(fs.readFileSync(CONFIG_FILE));
           config.numerodono = q;
           writeJsonFile(CONFIG_FILE, config);
@@ -23681,7 +23681,7 @@ ${prefix}togglecmdvip premium_ia off`);
           const TextinCriadorInfo = `╭━━━⊱ 👨‍💻 *CRIADOR* 👨‍💻 ⊱━━━╮
 │
 │ 💎 *Nome:* Hiudy
-│ 📱 *WhatsApp:* wa.me/553391967445
+│ 📱 *WhatsApp:* wa.me/559681361714
 │ 🌐 *GitHub:* github.com/hiudyy
 │ 📸 *Instagram:* instagram.com/hiudyyy_
 │
