@@ -50,6 +50,7 @@ async function loadModules() {
             spotifyMod,
             soundcloudMod,
             facebookMod,
+            kwaiMod,
         ] = await Promise.all([
             import('./downloads/youtube.js'),
             import('./downloads/tiktok.js'),
@@ -60,6 +61,7 @@ async function loadModules() {
             import('./downloads/spotify.js'),
             import('./downloads/soundcloud.js'),
             import('./downloads/facebook.js'),
+            import('./downloads/kwai.js'),
         ]);
 
         // Download modules with null checking
@@ -85,6 +87,11 @@ async function loadModules() {
         modules.spotify = spotifyMod.default ?? spotifyMod;
         modules.soundcloud = soundcloudMod.default ?? soundcloudMod;
         modules.facebook = facebookMod.default ?? facebookMod;
+        modules.kwai = kwaiMod.default ?? kwaiMod;
+        
+        if (modules.kwai && typeof modules.kwai.dl !== 'function') {
+            console.warn('[EXPORTS] Kwai dl function not found');
+        }
         
         // Enhanced null checking and error handling for all modules
         if (modules.youtube) {
