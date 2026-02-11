@@ -19692,7 +19692,7 @@ case 'facebookdl':
 │ 📦 *Repositório:* ${repo.name}
 │ 📝 *Descrição:* ${repo.description || 'Sem descrição'}
 │
-│ 👨‍💻 *Criador:* ${repo.owner.login}
+│ 👨‍💻 *Atualizado Por:* ${repo.owner.login}
 │ 🔗 *Perfil:* https://github.com/${repo.owner.login}
 │
 │ ⭐ *Stars:* ${repo.stargazers_count}
