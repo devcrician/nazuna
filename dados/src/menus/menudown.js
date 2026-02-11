@@ -44,6 +44,7 @@ ${menuTopBorder}${separatorIcon} *${downloadMenuTitle}*
 ${middleBorder}
 ${middleBorder}${menuItemIcon}${prefix}tiktok
 ${middleBorder}${menuItemIcon}${prefix}instagram
+${middleBorder}${menuItemIcon}${prefix}kwai
 ${middleBorder}${menuItemIcon}${prefix}igstory
 ${middleBorder}${menuItemIcon}${prefix}facebook
 ${middleBorder}${menuItemIcon}${prefix}gdrive
