@@ -1123,6 +1123,7 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
     tiktok,
     pinterest,
     igdl,
+    kwai, 
     sendSticker,
     styleText,
     emojiMix,
@@ -19177,9 +19178,7 @@ case 'facebookdl':
       case 'igstory':
         try {
           if (!q) return reply(`Digite um link do Instagram.\n> Ex: ${prefix}${command} https://www.instagram.com/reel/DFaq_X7uoiT/?igsh=M3Q3N2ZyMWU1M3Bo`);
-          
-          // Verificar se tem API key
-          
+
 
           reply('Aguarde um momentinho... ☀️');
           igdl.dl(q)
@@ -19201,6 +19200,34 @@ case 'facebookdl':
           return;
         } catch (e) {
           console.error('Erro no comando Instagram:', e);
+          reply("❌ Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.");
+        }
+        break;
+      case 'kwai':
+        try {
+          if (!q) return reply(`Digite um link do kwai.\n> Ex: ${prefix}${command} https://kwai-video.com/p/q0fr2CRm`);
+
+
+          reply('Aguarde um momentinho... ☀️');
+          kwai.dl(q)
+            .then(async (datinha) => {
+              if (!datinha.ok) return reply(datinha.msg);
+
+              for (const item of datinha.data) {
+                await nazu.sendMessage(from, {
+                  [item.type]: item.buff
+                }, {
+                  quoted: info
+                });
+              }
+            })
+            .catch(async (e) => {
+              console.error('Erro no comando Kwai (promise):', e);
+              reply("❌ Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.");
+            });
+          return;
+        } catch (e) {
+          console.error('Erro no comando Kwai:', e);
           reply("❌ Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.");
         }
         break;
