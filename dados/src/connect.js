@@ -1,6 +1,7 @@
 import a, { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } from 'whaileys';
 
 const makeWASocket = a.default;
+
 import { Boom } from '@hapi/boom';
 import NodeCache from 'node-cache';
 import readline from 'readline';
@@ -47,6 +48,7 @@ class MessageQueue {
         this.errorHandler = handler;
     }
 
+
     async add(message, processor) {
         return new Promise((resolve, reject) => {
             this.queue.push({
@@ -66,6 +68,7 @@ class MessageQueue {
         });
     }
 
+
     startProcessing() {
         if (this.isProcessing) return;
         
@@ -74,9 +77,11 @@ class MessageQueue {
         this.processQueue();
     }
 
+
     stopProcessing() {
         this.isProcessing = false;
     }
+
 
     resume() {
         if (!this.isProcessing) {
@@ -84,6 +89,7 @@ class MessageQueue {
             this.startProcessing();
         }
     }
+
 
     async processQueue() {
         // Processa mensagens em lotes paralelos
@@ -129,6 +135,7 @@ class MessageQueue {
         }
     }
 
+
     async processBatch(batchItems) {
         // Processa todas as mensagens do lote em paralelo
         const batchPromises = batchItems.map(item => this.processItem(item));
@@ -145,6 +152,7 @@ class MessageQueue {
         });
     }
 
+
     async processItem(item) {
         const { message, processor, resolve, reject } = item;
         
@@ -158,6 +166,7 @@ class MessageQueue {
             throw error;
         }
     }
+
 
     async handleProcessingError(item, error) {
         this.stats.totalErrors++;
@@ -198,6 +207,7 @@ class MessageQueue {
         };
     }
 
+
     formatUptime(ms) {
         const seconds = Math.floor(ms / 1000);
         const minutes = Math.floor(seconds / 60);
@@ -212,6 +222,7 @@ class MessageQueue {
         }
     }
 
+
     clear() {
         // Rejeita todas as mensagens pendentes antes de limpar
         this.queue.forEach(item => {
@@ -223,6 +234,7 @@ class MessageQueue {
         this.stats.currentQueueLength = 0;
         this.stopProcessing();
     }
+
 
     async shutdown() {
         console.log('🛑 Finalizando MessageQueue...');
@@ -1000,12 +1012,12 @@ async function createBotSocket(authDir) {
             generateHighQualityLinkPreview: true,
             syncFullHistory: true,
             markOnlineOnConnect: true,
+            browser: ["Ubuntu", "Chrome", "20.0.00"],
             connectTimeoutMs: 120000,
             retryRequestDelayMs: 5000,
             qrTimeout: 180000,
             keepAliveIntervalMs: 30_000,
             defaultQueryTimeoutMs: undefined,
-            browser: ['Windows', 'Edge', '143.0.3650.66'],
             msgRetryCounterCache,
             auth: state,
             signalRepository,
