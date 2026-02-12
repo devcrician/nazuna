@@ -25,9 +25,9 @@ const CONFIG = {
   DOWNLOAD_TIMEOUT: 180000,                 // Timeout para download de arquivos (180 segundos)
   PROVIDER_COOLDOWN_MS: 5 * 60 * 60 * 1000, // Tempo de cooldown para providers (5 horas)
   MAX_FAILURES_BEFORE_COOLDOWN: 3,          // Máximo de falhas antes de entrar em cooldown
-  USER_AGENT: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', // User-Agent padrão
-  SAVETUBE_SECRET_KEY: 'C5D58EF67A7584E4A29F6C35BBC4EB12', // Chave secreta para decodificar SaveTube
-  SAVETUBE_ALGORITHM: 'aes-128-cbc'         // Algoritmo de criptografia para SaveTube
+  USER_AGENT: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  SAVETUBE_SECRET_KEY: 'C5D58EF67A7584E4A29F6C35BBC4EB12',
+  SAVETUBE_ALGORITHM: 'aes-128-cbc'
 };
 
 // ============================================
@@ -35,45 +35,45 @@ const CONFIG = {
 // ============================================
 
 const providerState = {
-  cooldowns: new Map(),      // Mapa: provider -> timestamp de cooldown
-  failureCounts: new Map(),  // Mapa: provider -> contagem de falhas consecutivas
-  methodOrder: ['nodzapi', 'nayan', 'adonix', 'oceansaver', 'y2mate', 'savetube'] // Ordem de tentativa dos providers
+  cooldowns: new Map(),
+  failureCounts: new Map(),
+  methodOrder: ['nodzapi', 'nayan', 'adonix', 'oceansaver', 'y2mate', 'savetube']
 };
 
-// Cache simples para armazenar resultados e evitar requisições repetidas
-const cache = new Map();
-const CACHE_TTL = 60 * 60 * 1000; // 1 hora de cache
+// ⚠️ CACHE APENAS PARA PESQUISAS - SEM BUFFERS DE ÁUDIO/VIDEO ⚠️
+const searchCache = new Map();
+const SEARCH_CACHE_TTL = 60 * 60 * 1000; // 1 hora apenas para pesquisas
 
 // ============================================
 // FUNÇÕES AUXILIARES
 // ============================================
 
 /**
- * Obtém um valor do cache se ainda estiver válido
+ * Obtém um valor do cache de pesquisa se ainda estiver válido
  * @param {string} key - Chave do cache
  * @returns {any|null} Valor em cache ou null se expirado/não existir
  */
-function getCached(key) {
-  const item = cache.get(key);
+function getSearchCache(key) {
+  const item = searchCache.get(key);
   if (!item) return null;
-  if (Date.now() - item.ts > CACHE_TTL) {
-    cache.delete(key);
+  if (Date.now() - item.ts > SEARCH_CACHE_TTL) {
+    searchCache.delete(key);
     return null;
   }
   return item.val;
 }
 
 /**
- * Armazena um valor no cache com limite de tamanho
+ * Armazena um valor no cache de pesquisa com limite de tamanho
  * @param {string} key - Chave do cache
  * @param {any} val - Valor a ser armazenado
  */
-function setCache(key, val) {
-  if (cache.size >= 1000) {
-    const oldestKey = cache.keys().next().value;
-    cache.delete(oldestKey);
+function setSearchCache(key, val) {
+  if (searchCache.size >= 500) { // Limite maior para pesquisas (só metadados)
+    const oldestKey = searchCache.keys().next().value;
+    searchCache.delete(oldestKey);
   }
-  cache.set(key, { val, ts: Date.now() });
+  searchCache.set(key, { val, ts: Date.now() });
 }
 
 /**
@@ -94,11 +94,11 @@ function decodeSavetube(enc) {
   try {
     const key = hexcode(CONFIG.SAVETUBE_SECRET_KEY);
     const data = Buffer.from(enc, 'base64');
-    const iv = data.slice(0, 16);                // Vetor de inicialização (16 bytes)
-    const content = data.slice(16);              // Conteúdo criptografado
+    const iv = data.slice(0, 16);
+    const content = data.slice(16);
     const decipher = createDecipheriv(CONFIG.SAVETUBE_ALGORITHM, key, iv);
     const decrypted = Buffer.concat([decipher.update(content), decipher.final()]);
-    return JSON.parse(decrypted.toString());     // Parse do JSON decriptado
+    return JSON.parse(decrypted.toString());
   } catch (error) {
     throw new Error(`Decode error: ${error.message}`);
   }
@@ -131,6 +131,22 @@ function formatDuration(seconds) {
   return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
+/**
+ * Limpa cooldowns expirados periodicamente
+ */
+function cleanupExpiredCooldowns() {
+  const now = Date.now();
+  for (const [provider, until] of providerState.cooldowns.entries()) {
+    if (now >= until) {
+      providerState.cooldowns.delete(provider);
+      providerState.failureCounts.delete(provider);
+    }
+  }
+}
+
+// Limpar cooldowns a cada 30 minutos
+setInterval(cleanupExpiredCooldowns, 30 * 60 * 1000);
+
 // ============================================
 // GERENCIAMENTO DE PROVIDERS (Fila Rotativa)
 // ============================================
@@ -144,7 +160,6 @@ function isProviderInCooldown(provider) {
   const until = providerState.cooldowns.get(provider);
   if (!until) return false;
   if (Date.now() >= until) {
-    // Cooldown expirado - limpar estado
     providerState.cooldowns.delete(provider);
     providerState.failureCounts.delete(provider);
     return false;
@@ -173,7 +188,6 @@ function recordProviderFailure(provider, reason) {
   const count = (providerState.failureCounts.get(provider) || 0) + 1;
   providerState.failureCounts.set(provider, count);
   if (count >= CONFIG.MAX_FAILURES_BEFORE_COOLDOWN) {
-    // Múltiplas falhas consecutivas - entrar em cooldown
     markProviderCooldown(provider, reason);
   }
   return count;
@@ -253,7 +267,6 @@ async function DownloadNodz(url) {
   try {
     console.log(`🚀 [NodzAPI] Baixando mp3...`);
     
-    // Requisição à API Nodz
     const { data } = await axios.get('https://apisnodz.com.br/api/downloads/youtube/audio', {
       params: { url: url },
       timeout: CONFIG.TIMEOUT
@@ -266,7 +279,6 @@ async function DownloadNodz(url) {
     const resultado = data.resultado;
     
     console.log(`📥 [NodzAPI] Baixando arquivo...`);
-    // Download do arquivo de áudio
     const fileResponse = await axios.get(resultado.url, {
       responseType: 'arraybuffer',
       timeout: CONFIG.DOWNLOAD_TIMEOUT,
@@ -398,7 +410,6 @@ async function downloadWithAdonix(url) {
       "Referrer-Policy": "strict-origin-when-cross-origin"
     };
 
-    // 1. Obter configurações iniciais da API
     const initialResponse = await axios.get(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, {
       headers,
       timeout: CONFIG.TIMEOUT
@@ -406,18 +417,15 @@ async function downloadWithAdonix(url) {
 
     const init = initialResponse.data;
 
-    // 2. Extrair ID do vídeo da URL
     const videoId = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
     if (!videoId) {
       throw new Error('Não foi possível extrair ID do vídeo');
     }
 
-    // 3. Iniciar conversão para MP3
     const mp3Url = init.convertURL + `&v=${videoId}&f=mp3&_=${Math.random()}`;
     const mp3Response = await axios.get(mp3Url, { headers, timeout: CONFIG.TIMEOUT });
     const mp3Data = mp3Response.data;
 
-    // 4. Aguardar processamento da conversão
     let info = {};
     let attempts = 0;
     const maxAttempts = 30;
@@ -426,7 +434,7 @@ async function downloadWithAdonix(url) {
       const progressResponse = await axios.get(mp3Data.progressURL, { headers, timeout: CONFIG.TIMEOUT });
       info = progressResponse.data;
 
-      if (info.progress === 3) break; // Progresso 3 = conclusão
+      if (info.progress === 3) break;
 
       await new Promise(resolve => setTimeout(resolve, 2000));
       attempts++;
@@ -436,7 +444,6 @@ async function downloadWithAdonix(url) {
       throw new Error('Timeout no processamento');
     }
 
-    // 5. Baixar arquivo MP3 convertido
     const fileResponse = await axios.get(mp3Data.downloadURL, {
       responseType: 'arraybuffer',
       timeout: CONFIG.DOWNLOAD_TIMEOUT
@@ -481,7 +488,6 @@ async function downloadWithOceanSaver(url, format = 'mp3') {
 
     const encodedUrl = encodeURIComponent(url);
 
-    // 1. Criar tarefa de download
     const requestResponse = await axios.get(
       `https://p.oceansaver.in/ajax/download.php?format=${formatOrQuality}&url=${encodedUrl}`,
       { timeout: CONFIG.TIMEOUT }
@@ -493,7 +499,6 @@ async function downloadWithOceanSaver(url, format = 'mp3') {
       throw new Error('Falha ao obter task ID');
     }
 
-    // 2. Monitorar progresso da conversão
     let attempts = 0;
     const maxAttempts = 20;
 
@@ -506,7 +511,6 @@ async function downloadWithOceanSaver(url, format = 'mp3') {
       const progressData = progressResponse.data;
 
       if (progressData && progressData.download_url) {
-        // 3. Baixar arquivo quando pronto
         const fileResponse = await axios.get(progressData.download_url, {
           responseType: 'arraybuffer',
           timeout: CONFIG.DOWNLOAD_TIMEOUT
@@ -558,7 +562,6 @@ async function downloadWithY2mate(url, format = 'mp3') {
       "user-agent": CONFIG.USER_AGENT
     };
 
-    // Função para obter ID do vídeo com tratamento de redirects
     const getYoutubeId = async (youtubeUrl) => {
       const response = await axios.head(youtubeUrl, { headers, timeout: CONFIG.TIMEOUT, maxRedirects: 5 });
       let videoId = new URL(response.request.res.responseUrl || youtubeUrl)?.searchParams?.get("v");
@@ -574,7 +577,6 @@ async function downloadWithY2mate(url, format = 'mp3') {
       return { videoId };
     };
 
-    // Função para obter código de autenticação dinâmico
     const getAuthCode = async () => {
       console.log("[Y2mate] Baixando homepage");
       const homepageResponse = await axios.get("https://y2mate.nu", { headers, timeout: CONFIG.TIMEOUT });
@@ -637,7 +639,6 @@ async function downloadWithY2mate(url, format = 'mp3') {
       progressURL = redirectResponse.data.progressURL;
     }
 
-    // Aguardar processamento da conversão
     let progress = 0;
     let title = '';
 
@@ -655,7 +656,6 @@ async function downloadWithY2mate(url, format = 'mp3') {
       if (progress !== 3) await new Promise(resolve => setTimeout(resolve, 5000));
     }
 
-    // Baixar arquivo final
     const fileResponse = await axios.get(downloadURL, {
       responseType: 'arraybuffer',
       timeout: CONFIG.DOWNLOAD_TIMEOUT
@@ -698,11 +698,9 @@ async function downloadWithSavetube(url, format = 'mp3') {
       'Referer': 'https://yt.savetube.me/'
     };
 
-    // 1. Obter CDN randômico para balanceamento de carga
     const cdnResponse = await axios.get("https://media.savetube.me/api/random-cdn", { timeout: CONFIG.TIMEOUT });
     const cdn = cdnResponse.data.cdn;
 
-    // 2. Obter informações do vídeo (dados criptografados)
     const infoResponse = await axios.post(`https://${cdn}/v2/info`, { url }, {
       headers: { ...headers, 'Content-Type': 'application/json' },
       timeout: CONFIG.TIMEOUT
@@ -710,8 +708,7 @@ async function downloadWithSavetube(url, format = 'mp3') {
 
     const info = decodeSavetube(infoResponse.data.data);
 
-    // 3. Solicitar download com qualidade específica
-    const quality = format === 'mp3' ? 128 : 360; // 128kbps para áudio, 360p para vídeo
+    const quality = format === 'mp3' ? 128 : 360;
     const downloadType = format === 'mp3' ? 'audio' : 'video';
 
     const downloadResponse = await axios.post(`https://${cdn}/download`, {
@@ -727,7 +724,6 @@ async function downloadWithSavetube(url, format = 'mp3') {
       throw new Error('URL de download não recebida');
     }
 
-    // 4. Baixar arquivo
     const fileResponse = await axios.get(downloadResponse.data.data.downloadUrl, {
       responseType: 'arraybuffer',
       timeout: CONFIG.DOWNLOAD_TIMEOUT
@@ -767,7 +763,7 @@ async function downloadWithFallbacks(url, format = 'mp3') {
   const providers = {
     nodzapi: () => DownloadNodz(url),
     nayan: () => downloadWithNayan(url, format),
-    adonix: () => downloadWithAdonix(url),           // Só suporta MP3
+    adonix: () => downloadWithAdonix(url),
     oceansaver: () => downloadWithOceanSaver(url, format),
     y2mate: () => downloadWithY2mate(url, format),
     savetube: () => downloadWithSavetube(url, format)
@@ -777,18 +773,10 @@ async function downloadWithFallbacks(url, format = 'mp3') {
   let videoUnavailableCount = 0;
   let networkErrorCount = 0;
 
-  // Iterar pelos providers na ordem configurada
   for (const providerName of providerState.methodOrder) {
-    // Pular providers que não suportam o formato solicitado
-    if (providerName === 'adonix' && format !== 'mp3') {
-      continue;
-    }
+    if (providerName === 'adonix' && format !== 'mp3') continue;
+    if (providerName === 'nodzapi' && format !== 'mp3') continue;
 
-    if (providerName === 'nodzapi' && format !== 'mp3') {
-      continue;
-    }
-
-    // Verificar se provider está em cooldown
     if (isProviderInCooldown(providerName)) {
       console.log(`⏭️ Pulando ${providerName} (em cooldown)`);
       continue;
@@ -802,7 +790,6 @@ async function downloadWithFallbacks(url, format = 'mp3') {
       if (result?.success) {
         console.log(`✅ Sucesso com ${providerName}!`);
         
-        // Resetar falhas e promover provider bem-sucedido
         resetProviderFailures(providerName);
         promoteProviderToFirst(providerName);
         
@@ -824,15 +811,12 @@ async function downloadWithFallbacks(url, format = 'mp3') {
         analysis: errorAnalysis
       });
 
-      // Registrar falha e rebaixar provider
       recordProviderFailure(providerName, errorMessage.slice(0, 120));
       demoteProviderToLast(providerName);
 
-      // Contadores para análise de padrões de erro
       if (errorAnalysis.videoUnavailable) videoUnavailableCount++;
       if (errorAnalysis.networkError) networkErrorCount++;
 
-      // Tratamento específico para rate limiting
       if (errorAnalysis.rateLimit) {
         console.log('⏳ Rate limit detectado - aguardando 5 segundos...');
         await new Promise(resolve => setTimeout(resolve, 5000));
@@ -840,13 +824,11 @@ async function downloadWithFallbacks(url, format = 'mp3') {
 
       console.log(`❌ [${providerName}] Falhou: ${errorMessage.slice(0, 100)}...`);
 
-      // Heurística: se múltiplos providers dizem que vídeo está indisponível, provavelmente é verdade
       if (videoUnavailableCount >= 2) {
         console.log('⚠️ Múltiplos erros de vídeo indisponível - possivelmente o vídeo não existe');
         break;
       }
 
-      // Heurística: problemas de rede persistentes
       if (networkErrorCount >= 2) {
         console.log('⚠️ Múltiplos erros de rede - aguardando antes da próxima tentativa');
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -854,7 +836,6 @@ async function downloadWithFallbacks(url, format = 'mp3') {
     }
   }
 
-  // Relatório detalhado de falhas para debugging
   console.log('\n📋 Relatório de falhas:');
   errors.forEach((err, idx) => {
     console.log(`  ${idx + 1}. ${err.provider}: ${err.error.slice(0, 80)}...`);
@@ -887,11 +868,11 @@ function getRecommendation(errors) {
 }
 
 // ============================================
-// FUNÇÕES PÚBLICAS (API)
+// FUNÇÕES PÚBLICAS (API) - SEM CACHE DE BUFFERS
 // ============================================
 
 /**
- * Pesquisa vídeos no YouTube
+ * Pesquisa vídeos no YouTube (COM CACHE APENAS DE METADADOS)
  * @param {string} query - Termo de pesquisa
  * @returns {Promise<Object>} Resultado da pesquisa
  */
@@ -901,8 +882,8 @@ async function search(query) {
       return { ok: false, msg: 'Termo de pesquisa inválido' };
     }
 
-    // Verificar cache para evitar buscas repetidas
-    const cached = getCached(`search:${query}`);
+    // ✅ CACHE APENAS PARA PESQUISA (metadados, sem buffer)
+    const cached = getSearchCache(`search:${query}`);
     if (cached) return { ok: true, ...cached, cached: true };
 
     const results = await yts(query);
@@ -936,7 +917,8 @@ async function search(query) {
       }
     };
 
-    setCache(`search:${query}`, result);
+    // ✅ Armazena apenas metadados no cache
+    setSearchCache(`search:${query}`, result);
 
     return { ok: true, ...result };
   } catch (error) {
@@ -946,7 +928,7 @@ async function search(query) {
 }
 
 /**
- * Download de áudio (MP3) com sistema de fila rotativa
+ * Download de áudio (MP3) - SEM CACHE DE BUFFERS
  * @param {string} url - URL do vídeo do YouTube
  * @param {string} _quality - Qualidade (mp3) - mantido para compatibilidade
  * @returns {Promise<Object>} Resultado do download
@@ -958,13 +940,11 @@ async function mp3(url, _quality = 'mp3') {
       return { ok: false, msg: 'URL inválida do YouTube' };
     }
 
-    // Verificar cache
-    const cached = getCached(`mp3:${id}`);
-    if (cached) return { ok: true, ...cached, cached: true };
+    // ❌ NÃO USA MAIS CACHE PARA BUFFERS DE ÁUDIO
+    // Cada requisição baixa um novo arquivo
 
     const videoUrl = `https://youtube.com/watch?v=${id}`;
     
-    // Usar sistema de fila rotativa com fallback
     const result = await downloadWithFallbacks(videoUrl, 'mp3');
     
     if (!result.success || !result.buffer) {
@@ -986,7 +966,8 @@ async function mp3(url, _quality = 'mp3') {
       tempo: result.tempo || 0
     };
 
-    setCache(`mp3:${id}`, downloadResult);
+    // ❌ NÃO ARMAZENA BUFFER NO CACHE
+    // setSearchCache(`mp3:${id}`, downloadResult); ← REMOVIDO
 
     return { ok: true, ...downloadResult };
   } catch (error) {
@@ -996,7 +977,7 @@ async function mp3(url, _quality = 'mp3') {
 }
 
 /**
- * Download de vídeo (MP4) com sistema de fila rotativa
+ * Download de vídeo (MP4) - SEM CACHE DE BUFFERS
  * @param {string} url - URL do vídeo do YouTube
  * @param {string} quality - Qualidade desejada (360p, 720p, 1080p)
  * @returns {Promise<Object>} Resultado do download
@@ -1008,13 +989,11 @@ async function mp4(url, quality = '360p') {
       return { ok: false, msg: 'URL inválida do YouTube' };
     }
 
-    // Verificar cache
-    const cached = getCached(`mp4:${id}:${quality}`);
-    if (cached) return { ok: true, ...cached, cached: true };
+    // ❌ NÃO USA MAIS CACHE PARA BUFFERS DE VÍDEO
+    // Cada requisição baixa um novo arquivo
 
     const videoUrl = `https://youtube.com/watch?v=${id}`;
     
-    // Usar sistema de fila rotativa com fallback
     const result = await downloadWithFallbacks(videoUrl, 'mp4');
     
     if (!result.success || !result.buffer) {
@@ -1035,7 +1014,8 @@ async function mp4(url, quality = '360p') {
       source: result.source
     };
 
-    setCache(`mp4:${id}:${quality}`, downloadResult);
+    // ❌ NÃO ARMAZENA BUFFER NO CACHE
+    // setSearchCache(`mp4:${id}:${quality}`, downloadResult); ← REMOVIDO
 
     return { ok: true, ...downloadResult };
   } catch (error) {
@@ -1049,5 +1029,5 @@ async function mp4(url, quality = '360p') {
 // ============================================
 
 export { search, mp3, mp4, DownloadNodz };
-export const ytmp3 = mp3;  // Alias para compatibilidade
-export const ytmp4 = mp4;  // Alias para compatibilidade
+export const ytmp3 = mp3;
+export const ytmp4 = mp4;
