@@ -1,6 +1,6 @@
 /**
  * YouTube Download - APENAS API NODZ
- * Implementação simplificada usando apenas a API Nodz para download de áudio
+ * Implementação simplificada usando apenas a API Nodz para download de áudio e vídeo
  * 
  * SEM SISTEMA DE CACHE - cada requisição baixa um novo arquivo
  */
@@ -50,15 +50,15 @@ function formatDuration(seconds) {
 }
 
 // ============================================
-// DOWNLOAD COM API NODZ (ÚNICO PROVIDER)
+// DOWNLOAD COM API NODZ (ÁUDIO)
 // ============================================
 
 /**
- * Download usando a API Nodz (único provider para MP3)
+ * Download de áudio usando a API Nodz
  * @param {string} url - URL do vídeo do YouTube
  * @returns {Promise<Object>} Resultado do download
  */
-async function DownloadNodz(url) {
+async function DownloadNodzAudio(url) {
   try {
     console.log(`🚀 [NodzAPI] Baixando mp3...`);
     
@@ -73,7 +73,7 @@ async function DownloadNodz(url) {
     
     const resultado = data.resultado;
     
-    console.log(`📥 [NodzAPI] Baixando arquivo...`);
+    console.log(`📥 [NodzAPI] Baixando arquivo de áudio...`);
     const fileResponse = await axios.get(resultado.url, {
       responseType: 'arraybuffer',
       timeout: CONFIG.DOWNLOAD_TIMEOUT,
@@ -84,7 +84,7 @@ async function DownloadNodz(url) {
     
     const buffer = Buffer.from(fileResponse.data);
     
-    console.log(`✅ [NodzAPI] Download concluído: ${resultado.titulo}`);
+    console.log(`✅ [NodzAPI] Download de áudio concluído: ${resultado.titulo}`);
     
     return {
       success: true,
@@ -98,7 +98,69 @@ async function DownloadNodz(url) {
     };
     
   } catch (error) {
-    console.error(`❌ [NodzAPI] Erro:`, error.message);
+    console.error(`❌ [NodzAPI] Erro no áudio:`, error.message);
+    return { 
+      success: false, 
+      error: error.message, 
+      source: 'nodzapi'
+    };
+  }
+}
+
+// ============================================
+// DOWNLOAD COM API NODZ (VÍDEO)
+// ============================================
+
+/**
+ * Download de vídeo usando a API Nodz
+ * @param {string} url - URL do vídeo do YouTube
+ * @param {string} qualidade - Qualidade desejada (ex: 360p, 720p, 1080p)
+ * @returns {Promise<Object>} Resultado do download
+ */
+async function DownloadNodzVideo(url, qualidade = '360p') {
+  try {
+    console.log(`🚀 [NodzAPI] Baixando vídeo em ${qualidade}...`);
+    
+    const { data } = await axios.get('https://apisnodz.com.br/api/downloads/youtube/video', {
+      params: { 
+        url: url,
+        qualidade: qualidade 
+      },
+      timeout: CONFIG.TIMEOUT
+    });
+    
+    if (!data.success || !data.resultado || !data.resultado.url) {
+      throw new Error(data.message || 'API Nodz retornou erro');
+    }
+    
+    const resultado = data.resultado;
+    
+    console.log(`📥 [NodzAPI] Baixando arquivo de vídeo...`);
+    const fileResponse = await axios.get(resultado.url, {
+      responseType: 'arraybuffer',
+      timeout: CONFIG.DOWNLOAD_TIMEOUT,
+      headers: {
+        'User-Agent': CONFIG.USER_AGENT
+      }
+    });
+    
+    const buffer = Buffer.from(fileResponse.data);
+    
+    console.log(`✅ [NodzAPI] Download de vídeo concluído: ${resultado.titulo}`);
+    
+    return {
+      success: true,
+      buffer,
+      title: resultado.titulo || 'YouTube Video',
+      thumbnail: resultado.thumbnail || null,
+      quality: resultado.qualidade || qualidade,
+      filename: resultado.filename || `${resultado.titulo || 'video'} (${qualidade}).mp4`,
+      tempo: resultado.tempo || 0,
+      source: 'nodzapi'
+    };
+    
+  } catch (error) {
+    console.error(`❌ [NodzAPI] Erro no vídeo:`, error.message);
     return { 
       success: false, 
       error: error.message, 
@@ -176,7 +238,7 @@ async function mp3(url) {
     // SEM CACHE - cada requisição baixa um novo arquivo
     const videoUrl = `https://youtube.com/watch?v=${id}`;
     
-    const result = await DownloadNodz(videoUrl);
+    const result = await DownloadNodzAudio(videoUrl);
     
     if (!result.success || !result.buffer) {
       return {
@@ -203,9 +265,53 @@ async function mp3(url) {
   }
 }
 
+/**
+ * Download de vídeo (MP4) - APENAS NODZ - SEM CACHE
+ * @param {string} url - URL do vídeo do YouTube
+ * @param {string} qualidade - Qualidade desejada (360p, 720p, 1080p)
+ * @returns {Promise<Object>} Resultado do download
+ */
+async function mp4(url, qualidade = '360p') {
+  try {
+    const id = getYouTubeVideoId(url);
+    if (!id) {
+      return { ok: false, msg: 'URL inválida do YouTube' };
+    }
+
+    // SEM CACHE - cada requisição baixa um novo arquivo
+    const videoUrl = `https://youtube.com/watch?v=${id}`;
+    
+    const result = await DownloadNodzVideo(videoUrl, qualidade);
+    
+    if (!result.success || !result.buffer) {
+      return {
+        ok: false,
+        msg: result.error || 'Erro ao processar vídeo'
+      };
+    }
+
+    const downloadResult = {
+      criador: 'Hiudy',
+      buffer: result.buffer,
+      title: result.title,
+      thumbnail: result.thumbnail,
+      quality: result.quality || qualidade,
+      filename: result.filename || `${result.title || 'video'} (${qualidade}).mp4`,
+      source: result.source,
+      tempo: result.tempo || 0
+    };
+
+    return { ok: true, ...downloadResult };
+  } catch (error) {
+    console.error('Erro no download MP4:', error.message);
+    return { ok: false, msg: 'Erro ao baixar vídeo: ' + error.message };
+  }
+}
+
 // ============================================
 // EXPORTS
 // ============================================
 
-export { search, mp3, DownloadNodz };
+export { search, mp3, mp4, DownloadNodzAudio, DownloadNodzVideo };
 export const ytmp3 = mp3;
+export const ytmp4 = mp4;
