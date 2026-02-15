@@ -9,6 +9,7 @@ import {
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore
 } from 'whaileys';
+
 import { exec, execSync, spawn } from 'child_process';
 import { promisify } from 'util';
 
@@ -924,6 +925,11 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
         downloadModule = igdl;
         platformName = 'Instagram';
       }
+      // Kwai
+      else if (urlLower.includes('kwai.com') || urlLower.includes('kwa.am')) {
+        downloadModule = kwai;
+        platformName = 'kwai';
+      }
       // Facebook
       else if (urlLower.includes('facebook.com') || urlLower.includes('fb.watch')) {
         downloadModule = facebook;
@@ -996,6 +1002,27 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
             await nazu.sendMessage(from, {
               image: media.buff,
               caption: '📸 *Instagram*'
+            }, { quoted: info });
+          }
+          return true;
+        }
+      }
+      
+      // Kwai
+      else if (platformName === 'Kwai') {
+        result = await kwai.dl(url);
+        if (result && result.ok && result.data && result.data.length > 0) {
+          const media = result.data[0];
+          if (media.type === 'video') {
+            await nazu.sendMessage(from, {
+              video: media.buff,
+              caption: '📸 *Kwai*',
+              mimetype: 'video/mp4'
+            }, { quoted: info });
+          } else {
+            await nazu.sendMessage(from, {
+              image: media.buff,
+              caption: '📸 *Kwai*'
             }, { quoted: info });
           }
           return true;
@@ -12362,7 +12389,7 @@ Entre em contato com o dono do bot:
                 const levelingData = loadLevelingSafe();
                 const userLevel = getLevelingUser(levelingData, sender);
                 userLevel.xp = (userLevel.xp || 0) + expGained;
-                saveLeveling(levelingData);
+                saveLevelingSafe(levelingData);
               }
               quest.claimed = true;
               totalClaimed += quest.reward || 0;
