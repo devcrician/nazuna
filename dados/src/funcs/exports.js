@@ -130,6 +130,7 @@ async function loadModules() {
             calculatorMod,
             audioEditMod,
             transmissaoMod,
+            Logos
             // Novos módulos de serviços
             gdriveMod,
             mediafireMod,
@@ -139,6 +140,7 @@ async function loadModules() {
             freefireMod,
         ] = await Promise.all([
             import('./utils/gerarnick.js'),
+            import('./utils/logotipos.js'),
             import('./utils/update-verify.js'),
             import('./utils/emojimix.js'),
             import('./utils/upload.js'),
@@ -168,6 +170,7 @@ async function loadModules() {
 
         // Utils modules with null checking
         modules.styleText = styleTextMod.default ?? styleTextMod;
+        modules.Logos = Logos.default ?? Logos;
         modules.VerifyUpdate = verifyUpdateMod.default ?? verifyUpdateMod;
         modules.emojiMix = emojiMixMod.default ?? emojiMixMod;
         modules.upload = uploadMod.default ?? uploadMod;
