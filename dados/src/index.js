@@ -1153,6 +1153,7 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
     kwai, 
     sendSticker,
     styleText,
+    Logos, 
     emojiMix,
     upload,
     mcPlugin,
@@ -19874,6 +19875,15 @@ case 'facebookdl':
           await reply("❌ Ocorreu um erro ao carregar o menu de IA");
         }
         break;
+      case 'menulogo':
+      case 'menulogos':
+        try {
+          await sendMenuWithMedia('logotipos', menuLogos);
+        } catch (error) {
+          console.error('Erro ao enviar menu de Logos:', error);
+          await reply("❌ Ocorreu um erro ao carregar o menu de Logos");
+        }
+        break;
       case 'menubn':
       case 'menubrincadeira':
       case 'menubrincadeiras':
@@ -22640,6 +22650,46 @@ ${prefix}togglecmdvip premium_ia off`);
           reply("❌ Ocorreu um erro ao remover a indicação.");
         }
         break;
+        
+      //COMANDOS DE LOGOS
+       case 'darkgreen':
+       case 'glitch':
+       case 'write':
+       case 'advanced':
+       case 'typography':
+       case 'pixel':
+       case 'neon':
+       case 'flag':
+        case 'americanflag':
+       case 'deleting':
+        try {
+           if (!q) return reply(`❌ Cadê o texto?\nExemplo: .${command} Olá Mundo`);
+
+            const modelo = command; // O próprio comando é o modelo
+
+            await reply(`⏳ Gerando logotipo *${modelo.charAt(0).toUpperCase() + modelo.slice(1)}*... aguarde!`);
+
+            const logoGenerator = new Logos(q, modelo);
+            const resultado = await logoGenerator.gerarLogotipo();
+
+            if (resultado.success) {
+             // Formatar nome do modelo para exibição
+             const nomeModelo = modelo === 'americanflag' ? 'American Flag' : 
+             modelo.charAt(0).toUpperCase() + modelo.slice(1);
+      
+             await nazu.sendMessage(from, { 
+                image: { url: resultado.imageUrl }, 
+                 caption: `✅ *Logotipo ${nomeModelo} gerado com sucesso!*` 
+               }, { quoted: info });
+            } else {
+            await reply(`❌ Erro ao gerar logotipo: ${resultado.error}`);
+           }
+ 
+         } catch (e) {
+         console.error(`Erro no comando ${command}:`, e);
+         await reply("❌ Ocorreu um erro interno. Tente novamente em alguns minutos.");
+       }
+       break;
       
       //COMANDOS GERAIS
       case 'rvisu':
