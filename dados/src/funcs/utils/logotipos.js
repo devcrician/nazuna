@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const CONFIG = {
   API_URL: 'https://apisnodz.com.br/api/logotipos',
-  headers: ' '
+  TIMEOUT: 30000
 }
 
 class Logos {
@@ -22,15 +22,8 @@ class Logos {
         throw new Error('Texto não fornecido');
       }
       
-      // Lista de modelos disponíveis para validação
-      const modelos = [
-        'darkgreen', 'glitch', 'write', 'advanced', 'typography', 
-        'pixel', 'neon', 'flag', 'americanflag', 'deleting'
-      ];
-      
-      // Validar modelo
-      if (!modelos.includes(this.modelo)) {
-        throw new Error(`Modelo "${this.modelo}" não é válido`);
+      if (!this.modelo) {
+        throw new Error('Modelo não fornecido');
       }
       
       // Codificar o texto para URL
@@ -41,7 +34,7 @@ class Logos {
         url: `${CONFIG.API_URL}/${this.modelo}?text=${textoCodificado}`,
         method: 'GET',
         responseType: 'json',
-        timeout: 30000,
+        timeout: CONFIG.TIMEOUT,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
@@ -52,17 +45,26 @@ class Logos {
         return {
           success: true,
           imageUrl: response.data.resultado.imagem,
-          message: response.data.message
+          message: response.data.message || 'Logotipo gerado com sucesso'
         };
       } else {
-        throw new Error('Resposta inválida da API');
+        throw new Error(response.data?.message || 'Resposta inválida da API');
       }
       
-    } catch (e) {
-      console.error('Erro na API de logotipos:', e);
+    } catch (error) {
+      console.error('Erro na API de logotipos:', error.message);
+      
+      // Tratamento específico para erro de timeout
+      if (error.code === 'ECONNABORTED') {
+        return {
+          success: false,
+          error: 'Tempo limite excedido ao gerar logotipo'
+        };
+      }
+      
       return {
         success: false,
-        error: e.message || 'Erro ao gerar logotipo'
+        error: error.message || 'Erro ao gerar logotipo'
       };
     }
   }
