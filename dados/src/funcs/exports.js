@@ -130,7 +130,7 @@ async function loadModules() {
             calculatorMod,
             audioEditMod,
             transmissaoMod,
-            Logos
+            Logos, 
             // Novos módulos de serviços
             gdriveMod,
             mediafireMod,
