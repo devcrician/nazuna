@@ -10,7 +10,7 @@ export default async function menuLogos(prefix, botName = "MeuBot", userName = "
     const formattedHeader = header.replace(/#user#/g, userName);
     return `${formattedHeader}
 
-${menuTopBorder}${separatorIcon} *MENU LOGOS*
+${menuTopBorder}${separatorIcon} *🎨 MENU LOGOS*
 ${middleBorder}
 ${middleBorder}${menuItemIcon}${prefix}darkgreen
 ${middleBorder}${menuItemIcon}${prefix}glitch
