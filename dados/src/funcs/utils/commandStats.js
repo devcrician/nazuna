@@ -64,4 +64,5 @@ async function getCommandStats(command) {
 
 initializeStats();
 
+export default { trackCommandUsage, getMostUsedCommands, getCommandStats };
 export { trackCommandUsage, getMostUsedCommands, getCommandStats };
