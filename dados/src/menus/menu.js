@@ -14,6 +14,7 @@ ${menuTopBorder}${separatorIcon} *MENU PRINCIPAL*
 ${middleBorder}
 ${middleBorder}${menuItemIcon}${prefix}menuia
 ${middleBorder}${menuItemIcon}${prefix}menudown
+${middleBorder}${menuItemIcon}${prefix}menulogos
 ${middleBorder}${menuItemIcon}${prefix}menuadm
 ${middleBorder}${menuItemIcon}${prefix}menubn
 ${middleBorder}${menuItemIcon}${prefix}menudono
@@ -23,6 +24,5 @@ ${middleBorder}${menuItemIcon}${prefix}menufig
 ${middleBorder}${menuItemIcon}${prefix}alteradores
 ${middleBorder}${menuItemIcon}${prefix}menurpg
 ${middleBorder}${menuItemIcon}${prefix}menuvip
-${bottomBorder}
-`;
+${bottomBorder}`;
 }
