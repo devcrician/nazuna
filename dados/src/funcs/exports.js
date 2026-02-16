@@ -112,6 +112,7 @@ async function loadModules() {
         // --- utils (ESM via dynamic import) ---
         const [
             styleTextMod,
+            LogosMod, 
             verifyUpdateMod,
             emojiMixMod,
             uploadMod,
@@ -130,7 +131,6 @@ async function loadModules() {
             calculatorMod,
             audioEditMod,
             transmissaoMod,
-            Logos, 
             // Novos módulos de serviços
             gdriveMod,
             mediafireMod,
@@ -170,7 +170,7 @@ async function loadModules() {
 
         // Utils modules with null checking
         modules.styleText = styleTextMod.default ?? styleTextMod;
-        modules.Logos = Logos.default ?? Logos;
+        modules.Logos = LogosMod.default ?? LogosMod;
         modules.VerifyUpdate = verifyUpdateMod.default ?? verifyUpdateMod;
         modules.emojiMix = emojiMixMod.default ?? emojiMixMod;
         modules.upload = uploadMod.default ?? uploadMod;
