@@ -1154,6 +1154,7 @@ async function NazuninhaBotExec(nazu, info, store, messagesCache, rentalExpirati
     sendSticker,
     styleText,
     Logos, 
+    Logos2, 
     emojiMix,
     upload,
     mcPlugin,
@@ -22660,7 +22661,7 @@ ${prefix}togglecmdvip premium_ia off`);
        case 'pixel':
        case 'neon':
        case 'flag':
-        case 'americanflag':
+       case 'americanflag':
        case 'deleting':
         try {
            if (!q) return reply(`❌ Cadê o texto?\nExemplo: .${command} Olá Mundo`);
@@ -22675,6 +22676,46 @@ ${prefix}togglecmdvip premium_ia off`);
             if (resultado.success) {
              // Formatar nome do modelo para exibição
              const nomeModelo = modelo === 'americanflag' ? 'American Flag' : 
+             modelo.charAt(0).toUpperCase() + modelo.slice(1);
+      
+             await nazu.sendMessage(from, { 
+                image: { url: resultado.imageUrl }, 
+                 caption: `✅ *Logotipo ${nomeModelo} gerado com sucesso!*` 
+               }, { quoted: info });
+            } else {
+            await reply(`❌ Erro ao gerar logotipo: ${resultado.error}`);
+           }
+ 
+         } catch (e) {
+         console.error(`Erro no comando ${command}:`, e);
+         await reply("❌ Ocorreu um erro interno. Tente novamente em alguns minutos.");
+       }
+       break;
+       
+       case 'pornhub':
+       case 'avengers':
+       case 'graffiti':
+       case 'captainamerica':
+       case 'stone3d':
+       case 'neon2':
+       case 'thor':
+       case 'amongus':
+       case 'deadpool':
+       case 'blackpink':
+        try {
+          const [texto1, texto2] = q.split('/').map(i => i.trim());
+          if (!texto1 || !texto2) return reply(`❌ Cadê os textos?\nExemplo: ${prefix + command} Nazuna/Bot`);
+
+            const modelo = command; // O próprio comando é o modelo
+
+            await reply(`⏳ Gerando logotipo *${modelo.charAt(0).toUpperCase() + modelo.slice(1)}*... aguarde!`);
+
+            const logoGenerator = new Logos2(texto1, texto2, modelo);
+            const resultado = await logoGenerator.gerarLogotipo();
+
+            if (resultado.success) {
+             // Formatar nome do modelo para exibição
+             const nomeModelo = modelo === 'deadpool' ? 'deadpool' : 
              modelo.charAt(0).toUpperCase() + modelo.slice(1);
       
              await nazu.sendMessage(from, { 
