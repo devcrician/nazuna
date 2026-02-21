@@ -22717,7 +22717,7 @@ ${prefix}togglecmdvip premium_ia off`);
              // Formatar nome do modelo para exibição
              const nomeModelo = modelo === 'deadpool' ? 'deadpool' : 
              modelo.charAt(0).toUpperCase() + modelo.slice(1);
-      
+            
              await nazu.sendMessage(from, { 
                 image: { url: resultado.imageUrl }, 
                  caption: `✅ *Logotipo ${nomeModelo} gerado com sucesso!*` 
@@ -23826,7 +23826,7 @@ ${prefix}togglecmdvip premium_ia off`);
           const TextinCriadorInfo = `╭━━━⊱ 👨‍💻 *CRIADOR* 👨‍💻 ⊱━━━╮
 │
 │ 💎 *Nome:* Hiudy
-│ 📱 *WhatsApp:* wa.me/559681361714
+│ 📱 *WhatsApp:* wa.me/553391967445
 │ 🌐 *GitHub:* github.com/hiudyy
 │ 📸 *Instagram:* instagram.com/hiudyyy_
 │
@@ -24294,8 +24294,8 @@ ${prefix}togglecmdvip premium_ia off`);
           var buffer = await getFileBuffer(isVideo2 ? boij : boij2, isVideo2 ? 'video' : 'image');
           await sendSticker(nazu, from, {
             sticker: buffer,
-            author: `『${pushname}』\n『${nomebot}』\n『${nomedono}』\n『cognima.com.br』`,
-            packname: '👤 Usuario(a)ᮀ۟❁’￫\n🤖 Botᮀ۟❁’￫\n👑 Donoᮀ۟❁’￫\n🌐 Siteᮀ۟❁’￫',
+            author: `${pushname}`,
+            packname: `${nomebot}`, 
             type: isVideo2 ? 'video' : 'image',
             forceSquare: true
           }, {
