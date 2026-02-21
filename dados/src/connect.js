@@ -1,7 +1,6 @@
 import a, { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } from 'whaileys';
 
 const makeWASocket = a.default;
-
 import { Boom } from '@hapi/boom';
 import NodeCache from 'node-cache';
 import readline from 'readline';
@@ -48,7 +47,6 @@ class MessageQueue {
         this.errorHandler = handler;
     }
 
-
     async add(message, processor) {
         return new Promise((resolve, reject) => {
             this.queue.push({
@@ -68,7 +66,6 @@ class MessageQueue {
         });
     }
 
-
     startProcessing() {
         if (this.isProcessing) return;
         
@@ -77,11 +74,9 @@ class MessageQueue {
         this.processQueue();
     }
 
-
     stopProcessing() {
         this.isProcessing = false;
     }
-
 
     resume() {
         if (!this.isProcessing) {
@@ -89,7 +84,6 @@ class MessageQueue {
             this.startProcessing();
         }
     }
-
 
     async processQueue() {
         // Processa mensagens em lotes paralelos
@@ -135,7 +129,6 @@ class MessageQueue {
         }
     }
 
-
     async processBatch(batchItems) {
         // Processa todas as mensagens do lote em paralelo
         const batchPromises = batchItems.map(item => this.processItem(item));
@@ -152,7 +145,6 @@ class MessageQueue {
         });
     }
 
-
     async processItem(item) {
         const { message, processor, resolve, reject } = item;
         
@@ -166,7 +158,6 @@ class MessageQueue {
             throw error;
         }
     }
-
 
     async handleProcessingError(item, error) {
         this.stats.totalErrors++;
@@ -207,7 +198,6 @@ class MessageQueue {
         };
     }
 
-
     formatUptime(ms) {
         const seconds = Math.floor(ms / 1000);
         const minutes = Math.floor(seconds / 60);
@@ -222,7 +212,6 @@ class MessageQueue {
         }
     }
 
-
     clear() {
         // Rejeita todas as mensagens pendentes antes de limpar
         this.queue.forEach(item => {
@@ -234,7 +223,6 @@ class MessageQueue {
         this.stats.currentQueueLength = 0;
         this.stopProcessing();
     }
-
 
     async shutdown() {
         console.log('🛑 Finalizando MessageQueue...');
@@ -1002,7 +990,7 @@ async function createBotSocket(authDir) {
         } = await useMultiFileAuthState(authDir, makeCacheableSignalKeyStore);
         
         // Versão manual do WhatsApp
-        const version = [2, 3000, 1031821793];
+        const version = [2, 3000, 1030370089];
         console.log(`📱 Usando versão do WhatsApp: ${version.join('.')}`);
         
         const NazunaSock = makeWASocket({
@@ -1012,7 +1000,7 @@ async function createBotSocket(authDir) {
             generateHighQualityLinkPreview: true,
             syncFullHistory: true,
             markOnlineOnConnect: true,
-            browser: ['Windows', 'Edge', '143.0.3650.66'],
+            browser: ["Ubuntu", "Chrome", "20.0.00"],
             connectTimeoutMs: 120000,
             retryRequestDelayMs: 5000,
             qrTimeout: 180000,
@@ -1235,7 +1223,7 @@ async function createBotSocket(authDir) {
                 const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
                 const reasonMessage = {
                     [DisconnectReason.loggedOut]: 'Deslogado do WhatsApp',
-                    401: 'Sessão expirada',
+                    401: 'Sessão expirada ou não autorizada',
                     403: 'Acesso proibido (Forbidden)',
                     [DisconnectReason.connectionClosed]: 'Conexão fechada',
                     [DisconnectReason.connectionLost]: 'Conexão perdida',
@@ -1253,7 +1241,35 @@ async function createBotSocket(authDir) {
                     cacheCleanupInterval = null;
                 }
                 
-                // Tratamento especial para erro 403 (Forbidden)
+                // --- CORREÇÃO SOLICITADA: TRATAMENTO ESPECÍFICO PARA ERRO 401 ---
+                if (reason === 401) {
+                    console.log('🔐 Erro 401 detectado: Sessão expirada ou não autorizada.');
+                    console.log('🗑️ Limpando pasta de autenticação (QR code)...');
+                    
+                    // Limpa a pasta de autenticação
+                    await clearAuthDir(authDir);
+                    
+                    console.log('🔄 Fechando conexão e reiniciando o bot para gerar novo QR code...');
+                    
+                    // Cancela qualquer timer de reconexão pendente
+                    if (reconnectTimer) {
+                        clearTimeout(reconnectTimer);
+                        reconnectTimer = null;
+                    }
+                    
+                    // Reseta flags
+                    isReconnecting = false;
+                    reconnectAttempts = 0;
+                    
+                    // Aguarda um momento antes de reiniciar
+                    setTimeout(() => {
+                        startNazu();
+                    }, 2000);
+                    
+                    return; // Importante: retorna para não executar o resto do código
+                }
+                
+                // Tratamento especial para erro 403 (Forbidden) - mantido como estava
                 if (reason === 403) {
                     forbidden403Attempts++;
                     console.log(`⚠️ Erro 403 detectado. Tentativa ${forbidden403Attempts}/${MAX_403_ATTEMPTS}`);
@@ -1279,6 +1295,7 @@ async function createBotSocket(authDir) {
                 // Reset do contador 403 se for outro tipo de erro
                 forbidden403Attempts = 0;
                 
+                // Para outros tipos de erro, tentamos reconectar (comportamento original)
                 if (reason === DisconnectReason.badSession || reason === DisconnectReason.loggedOut) {
                     await clearAuthDir(authDir);
                     console.log('🔄 Nova autenticação será necessária na próxima inicialização.');
