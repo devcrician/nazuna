@@ -1012,7 +1012,7 @@ async function createBotSocket(authDir) {
             generateHighQualityLinkPreview: true,
             syncFullHistory: true,
             markOnlineOnConnect: true,
-            browser: ["Ubuntu", "Chrome", "20.0.00"],
+            browser: ['Windows', 'Edge', '143.0.3650.66'],
             connectTimeoutMs: 120000,
             retryRequestDelayMs: 5000,
             qrTimeout: 180000,
